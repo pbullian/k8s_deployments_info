@@ -2,6 +2,8 @@
 
 This script provides a color-coded table view of Kubernetes deployments, showing the namespace, name, desired pods, available pods, CPU request/limits, and memory request/limits and type of probes that each deployment has.
 
+
+![](media/screen.png)
 ## Prerequisites
 
 - Python >= 3.6
