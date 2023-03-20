@@ -1,6 +1,6 @@
 # Kubernetes Deployments Information
 
-This script provides a color-coded table view of Kubernetes deployments, showing the namespace, name, desired pods, available pods, CPU request, and memory request for each deployment.
+This script provides a color-coded table view of Kubernetes deployments, showing the namespace, name, desired pods, available pods, CPU request/limits, and memory request/limits and type of probes that each deployment has.
 
 ## Prerequisites
 

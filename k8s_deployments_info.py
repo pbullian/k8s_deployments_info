@@ -18,17 +18,36 @@ result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
 deployments = json.loads(result)["items"]
 
 table = PrettyTable()
-table.field_names = ["Namespace", "Name", "Desired Pods", "Available Pods", "CPU Request", "Memory Request"]
+table.field_names = ["Namespace", "Name", "Desired Pods", "Available Pods", "CPU Request", "Memory Request", "CPU Limit", "Memory Limit", "Readiness", "Startup", "Liveness"]
 
 for deployment in deployments:
     namespace = deployment["metadata"]["namespace"]
     name = deployment["metadata"]["name"]
     desired_pods = deployment["spec"].get("replicas", 0)
     available_pods = deployment["status"].get("availableReplicas", 0)
-    resources = deployment["spec"]["template"]["spec"]["containers"][0]["resources"]
+    container = deployment["spec"]["template"]["spec"]["containers"][0]
+    resources = container["resources"]
     cpu_request = resources["requests"].get("cpu", "N/A") if "requests" in resources else "N/A"
     memory_request = resources["requests"].get("memory", "N/A") if "requests" in resources else "N/A"
-   
+    cpu_limit = resources["limits"].get("cpu", "N/A") if "limits" in resources else "N/A"
+    memory_limit = resources["limits"].get("memory", "N/A") if "limits" in resources else "N/A"
+
+    probe_types = {
+        "readiness": "NONE",
+        "startup": "NONE",
+        "liveness": "NONE",
+    }
+
+    for probe_type in probe_types:
+        probe_data = container.get(f"{probe_type}Probe", None)
+        if probe_data:
+            if "httpGet" in probe_data:
+                probe_types[probe_type] = f"HTTP {probe_data['httpGet']['path']}"
+            elif "tcpSocket" in probe_data:
+                probe_types[probe_type] = "TCP"
+            elif "exec" in probe_data:
+                probe_types[probe_type] = "Exec"
+    
     if desired_pods == available_pods:
         color = "green"
     elif int(available_pods) > 0:
@@ -43,8 +62,12 @@ for deployment in deployments:
         colored(available_pods, color),
         colored(cpu_request, color),
         colored(memory_request, color),
+        colored(cpu_limit, color),
+        colored(memory_limit, color),
+        colored(probe_types["readiness"], color),
+        colored(probe_types["startup"], color),
+        colored(probe_types["liveness"], color),
     ]
     table.add_row(row)
 
 print(table)
-
