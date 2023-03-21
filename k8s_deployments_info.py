@@ -18,7 +18,7 @@ result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
 deployments = json.loads(result)["items"]
 
 table = PrettyTable()
-table.field_names = ["Namespace", "Name", "Desired Pods", "Available Pods", "CPU Request", "Memory Request", "CPU Limit", "Memory Limit", "Readiness", "Startup", "Liveness"]
+table.field_names = ["NS", "Name", "Des. Pods", "Avail. Pods", "CPU Req.", "Mem Req.", "CPU Lim.", "Mem Lim.", "Read.", "Start.", "Live."]
 
 for deployment in deployments:
     namespace = deployment["metadata"]["namespace"]
