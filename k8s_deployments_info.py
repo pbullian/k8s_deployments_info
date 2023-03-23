@@ -13,9 +13,15 @@ def is_json(line):
     return True
 
 command = "kubectl get deployments --all-namespaces -o json"
-result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True).stdout
+result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True)
 
-deployments = json.loads(result)["items"]
+if result.returncode != 0:
+    print("Error: Unable to connect to the Kubernetes cluster.")
+    print("Please check your credentials and ensure kubectl is configured correctly.")
+    sys.exit(1)
+
+
+deployments = json.loads(result.stdout)["items"]
 
 table = PrettyTable()
 table.field_names = ["NS", "Name", "Des. Pods", "Avail. Pods", "CPU Req.", "Mem Req.", "CPU Lim.", "Mem Lim.", "Read.", "Start.", "Live."]
