@@ -1,6 +1,8 @@
 import json
 import subprocess
 import sys
+import os
+import tempfile
 
 from prettytable import PrettyTable
 from termcolor import colored
@@ -76,4 +78,13 @@ for deployment in deployments:
     ]
     table.add_row(row)
 
-print(table)
+# Save table to a temporary file
+with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+    temp_file.write(table.get_string().encode("utf-8"))
+    temp_file_name = temp_file.name
+
+# Use less command to display the file with horizontal scrolling
+os.system(f"less -R -S {temp_file_name}")
+
+# Remove temporary file after displaying it
+os.remove(temp_file_name)
